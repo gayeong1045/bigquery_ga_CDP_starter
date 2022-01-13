@@ -18,3 +18,9 @@ models:
                 - not_null
           - name: user_type
             description: "New vs existing, based on `user_first_touch_timestamp`."
+sources:
+  - name: ga_events
+    database: maderi-cdp
+    schema: analytics_291350587
+    tables: 
+      - name: events_*

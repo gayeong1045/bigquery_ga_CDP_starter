@@ -18,13 +18,14 @@ from (
     *,
     row_number() over (partition by user_pseudo_id, event_name, event_timestamp order by event_timestamp) as row
   from
-    `{{ target.project }}.{{ target.schema }}.events_*`
+    `{{ target.project }}.analytics_291350587.events_*`
     
   {% if is_incremental() %}
   -- Refresh only recent session data to limit query costs, unless running with --full-refresh
 	where regexp_extract(_table_suffix,'[0-9]+') BETWEEN FORMAT_DATE("%Y%m%d", DATE_SUB(CURRENT_DATE(), INTERVAL {{ var('session_lookback_days') }} DAY)) AND
   		FORMAT_DATE("%Y%m%d", CURRENT_DATE())
 {% endif %}  
+
     )
 where
   row = 1
