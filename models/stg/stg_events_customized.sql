@@ -16,7 +16,9 @@ from (
     -- flag to indicate if source table is `events_intraday_`
     case when _table_suffix like '%intraday%' then true else false end as is_intraday,
     *,
-    row_number() over (partition by user_pseudo_id, event_name, event_timestamp order by event_timestamp) as row
+    row_number() over (partition by user_pseudo_id, event_name, event_timestamp order by event_timestamp) as row,
+    -- 같은시간, 같은 유저, 같은 이벤트가 동시에 생길 수 없다고 가정하고 id 생성
+    user_pseudo_id||'_'||event_timestamp||'_'||event_name as event_id
   from
     {{ source ('ga_events', 'events_*')}}
     

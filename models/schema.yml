@@ -18,6 +18,14 @@ models:
                 - not_null
           - name: user_type
             description: "New vs existing, based on `user_first_touch_timestamp`."
+    - name: stg_events_customized
+      description: "ga데이터를 staging하고 unique한 id를 추가한 테이블."
+      columns:
+          - name: event_id
+            description: "같은시간, 같은 유저, 같은 이벤트가 동시에 생길 수 없다고 가정"
+            tests:
+                - not_null
+                - unique
 sources:
   - name: ga_events
     database: maderi-cdp
