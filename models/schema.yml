@@ -2,7 +2,6 @@
 version: 2
 
 models:
-
     - name: dedup_events
       description: "Source table for other models. Takes all data from `events_` and (if available) `events_intraday_` tables and deduplicates by user_pseudo_id, event_name and event_timestamp."
 

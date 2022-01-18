@@ -42,11 +42,7 @@ models:
         columns: true
       admin:
           materialized: table
-      base:
+      ga_stg:
           materialized: table
-      join:
-          materialized: table          
-      math:
-          materialized: table
-      visualization:
+      ga_flat:
           materialized: table

@@ -1,7 +1,7 @@
 -- incremental로 증분 추출/분석 
 
 {{ config(
-    materialized='incremental',
+    materialized='table',
     partition_by={
       "field": "table_date",
       "data_type": "date"},
