@@ -1,7 +1,7 @@
--- incremental as table sufix 등 학습 후 추가 
+-- incremental로 증분 추출/분석 
 
 {{ config(
-    materialized='table'
+    materialized='incremental'
 )}}
 
 -- vender_id as hostname은 자사 정보만 이용할 경우 삭제 가능
