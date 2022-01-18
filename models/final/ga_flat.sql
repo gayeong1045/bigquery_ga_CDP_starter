@@ -16,10 +16,7 @@ SELECT
   event_date,
   TIMESTAMP_MICROS(event_timestamp) as event_time,
   event_name,
-  {% for inteve in int_events %}
-  {% if params.key == '{{inteve}}' %}
-  {% endif %}
-  {% endfor %}
+  params.key 
 
 from {{ref('stg_events_customized')}},
 UNNEST(event_params) AS params
