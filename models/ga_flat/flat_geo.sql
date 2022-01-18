@@ -4,17 +4,15 @@
     materialized='table'
 )}}
 
--- vender_id, hostname은 자사 정보만 이용할 경우 삭제 가능
 
 SELECT
   event_id,
-  geo.continent,
-  geo.country,
-  geo.region,
-  geo.city,
-  geo.sub_continent,
-  geo.operating_system,
-  geo.metro,
+  geo.continent as geo_continent,
+  geo.country as geo_country,
+  geo.region as geo_region,
+  geo.city as geo_city,
+  geo.sub_continent as geo_sub_continent,
+  geo.metro as geo_metro
 
 from {{ref('stg_events_customized')}}
 

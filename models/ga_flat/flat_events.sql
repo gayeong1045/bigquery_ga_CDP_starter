@@ -12,11 +12,11 @@
 
 SELECT
   event_id,
-  params.key,
-  params.value.string_value,
-  params.value.int_value,
-  params.value.float_value,
-  params.value.double_value
+  params.key as event_params_key,
+  params.value.string_value as event_params_value_string,
+  params.value.int_value as event_params_value_int,
+  params.value.float_value as event_params_value_float,
+  params.value.double_value as event_params_value_double
 
 from {{ref('stg_events_customized')}},
 UNNEST(event_params) AS params
