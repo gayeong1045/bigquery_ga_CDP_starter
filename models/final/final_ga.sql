@@ -51,6 +51,23 @@ fin_ga as (
                         on a.event_id = d.event_id
                     left join {{ref('flat_geo')}} e
                         on a.event_id = e.event_id
+),
+
+-- user_pseudo_id vlookup
+user_id_vlookup as(
+    select 
+        *
+    from fin_ga a left join {{ref('user_id_matching')}} b
+        on a.user_pseudo_id = b.match_user_pseudo_id
+),
+
+-- 직원 정보 삭제
+delete_employee as (
+    select 
+        *
+    from user_id_vlookup 
+    where user_id not in (select user_id from {{ref('employee_info')}})
 )
 
-select * from fin_ga
+
+select * from delete_employee
