@@ -31,3 +31,15 @@ sources:
     schema: analytics_291350587
     tables: 
       - name: events_*
+  - name: maderi_db
+    database: maderi-cdp
+    schema: postgres_rds_2_public
+    tables: 
+      - name: accounts_user
+      - name: accounts_profile
+      - name: accounts_testloginhistory
+      - name: t_payment_user_license
+      - name: t_payment_history
+      - name: t_payment_license_table
+      - name: t_ch_user_data
+      - name: t_user_keyword
