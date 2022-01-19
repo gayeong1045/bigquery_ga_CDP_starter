@@ -1,3 +1,8 @@
+{{ config(
+    materialized='ephemeral'
+)}}
+
+
 with non_flat as (
     select 
         event_id,
