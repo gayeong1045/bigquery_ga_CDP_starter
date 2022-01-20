@@ -61,13 +61,16 @@ user_id_vlookup as(
         on a.user_pseudo_id = b.match_user_pseudo_id
 ),
 
--- 직원 정보 삭제
-delete_employee as (
+-- 직원 정보 태깅
+tagging_employee as (
     select 
-        *
+        *,
+        case
+            when match_user_id in (select user_id from {{ref('employee_info')}}) then 'employee'
+            else 'customer'
+        end as is_employee
     from user_id_vlookup 
-    where user_id not in (select user_id from {{ref('employee_info')}})
 )
 
 
-select * from delete_employee
+select * from tagging_employee

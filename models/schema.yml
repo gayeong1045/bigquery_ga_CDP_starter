@@ -40,7 +40,7 @@ sources:
       - name: events_*
   - name: maderi_db
     database: maderi-cdp
-    schema: postgres_rds_2_public
+    schema: postgres_rds_f_public
     tables: 
       - name: accounts_user
       - name: accounts_profile

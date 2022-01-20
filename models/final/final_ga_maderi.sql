@@ -20,6 +20,7 @@ select
     a.geo_region,
     a.geo_city,
     a.match_user_id,
+    a.is_employee,
     b.accounts_user_id,
     b.accounts_user_password,
     b.accounts_user_last_login,
@@ -59,14 +60,14 @@ select
     f.t_payment_license_table_price as t_payment_license_price,
     g.accounts_loginhistory_created_at
 from {{ref('final_ga')}} a  left join {{ref('stg_accounts')}} b
-                                on a.user_id = b.user_id
+                                on a.match_user_id = b.user_id
                             left join {{ref('stg_payment_user_license')}} c 
-                                on a.user_id = c.user_id
+                                on a.match_user_id = c.user_id
                             left join {{ref('stg_user_keyword')}} d
-                                on a.user_id = d.user_id
+                                on a.match_user_id = d.user_id
                             left join {{ref('stg_user_ch')}} e 
-                                on a.user_id = e.user_id
+                                on a.match_user_id = e.user_id
                             left join {{ref('stg_payment_license_info')}} f 
                                 on c.t_payment_user_license_license = f.t_payment_license_table_license
                             left join {{ref('stg_accounts_history')}} g 
-                                on a.user_id = g.user_id
+                                on a.match_user_id = g.user_id
