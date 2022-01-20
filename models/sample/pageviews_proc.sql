@@ -1,5 +1,5 @@
 {{ config(
-    materialized='incremental',
+    materialized='ephemeral',
     partition_by={
       "field": "event_date",
       "data_type": "date"},

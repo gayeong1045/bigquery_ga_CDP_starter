@@ -2,7 +2,6 @@
 version: 2
 
 models:
-
     - name: dedup_events
       description: "Source table for other models. Takes all data from `events_` and (if available) `events_intraday_` tables and deduplicates by user_pseudo_id, event_name and event_timestamp."
 
@@ -18,9 +17,36 @@ models:
                 - not_null
           - name: user_type
             description: "New vs existing, based on `user_first_touch_timestamp`."
+    - name: stg_events_customized
+      description: "ga데이터를 staging하고 unique한 id를 추가한 테이블."
+      columns:
+          - name: event_id
+            description: "같은시간, 같은 유저, 같은 이벤트에 순서를 붙여 join key 생성"
+            tests:
+                - not_null
+                - unique
+    - name: user_id_matching
+      description: "회원가입 직전의 사용자의 행동을 tracking을 위해 user_id와 user_pseudo_id를 matching"
+      columns:
+        - name: match_user_pseudo_id
+          tests:
+            - unique
+            - not_null
 sources:
   - name: ga_events
     database: maderi-cdp
     schema: analytics_291350587
     tables: 
       - name: events_*
+  - name: maderi_db
+    database: maderi-cdp
+    schema: postgres_rds_f_public
+    tables: 
+      - name: accounts_user
+      - name: accounts_profile
+      - name: accounts_testloginhistory
+      - name: t_payment_user_license
+      - name: t_payment_history
+      - name: t_payment_license_table
+      - name: t_ch_user_data
+      - name: t_user_keyword

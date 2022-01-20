@@ -1,5 +1,5 @@
 {{ config(
-    materialized='incremental',
+    materialized='ephemeral',
     partition_by={
       "field": "event_date",
       "data_type": "date"},
@@ -17,5 +17,5 @@ SELECT
     event_name,
     params.key AS event_parameter_key
 
-from {{ref('stg_events_customized')}},
+{{ ref('dedup_events') }},
 UNNEST(event_params) AS params

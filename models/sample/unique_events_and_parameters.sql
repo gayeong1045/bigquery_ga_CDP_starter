@@ -1,3 +1,8 @@
+{{ config(
+    materialized='ephemeral'
+)}}
+
+
 -- this query creates a list of unique events and parameters with the corresponding data types and the amount these event-parameter combinations occur in the GA4 property (only within the lookback period)
 SELECT
   event_name,

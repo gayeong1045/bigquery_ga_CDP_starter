@@ -33,7 +33,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 
 vars:
-  session_lookback_days: 2
+  session_lookback_days: 3
 
 models:
   ga4_bigquery_starter:
@@ -42,11 +42,7 @@ models:
         columns: true
       admin:
           materialized: table
-      base:
+      ga_stg:
           materialized: table
-      join:
-          materialized: table          
-      math:
-          materialized: table
-      visualization:
+      ga_flat:
           materialized: table
