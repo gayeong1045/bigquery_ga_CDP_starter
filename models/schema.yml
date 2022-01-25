@@ -17,6 +17,22 @@ models:
                 - not_null
           - name: user_type
             description: "New vs existing, based on `user_first_touch_timestamp`."
+    # models/ma_stg
+    - name: stg_accounts 
+      description: "마대리 DB로부터 회원정보와 회원정보 프로필을 불러오는 모델"
+    - name: stg_accounts_history
+      description: "마대리 DB로부터 로그인 히스토리를 불러오는 모델"
+    - name: stg_payment_history
+      description: "마대리 DB로부터 결제 히스토리를 불러오는 모델"
+    - name: stg_payment_license_info
+      description: "마대리 DB로부터 라이선스 종류 정보를 불러오는 모델"
+    - name: stg_payment_user_license
+      description: "마대리 DB로부터 사용자별 라이선스 유형 및 사용여부 정보를 불러오는 모델"
+    - name: stg_user_ch
+      description: "마대리 DB로부터 사용자가 등록한 채널 정보를 불러오는 모델"
+    - name: stg_user_keyword
+      description: "마대리 DB로부터 사용자가 등록한 키워드 정보를 불러오는 모델"
+    # models/ga_stg
     - name: stg_events_customized
       description: "ga데이터를 staging하고 unique한 id를 추가한 테이블."
       columns:
@@ -25,6 +41,18 @@ models:
             tests:
                 - not_null
                 - unique
+    # models/ga_flat
+    - name: flat_device
+      description: "ga를 통해 획득한 사용자의 device 정보 레코드의 flat. 레코드 항목의 개별 추출을 위함"
+    - name: flat_etc
+      description: "ga를 통해 획득한 사용자의 기타 정보 레코드의 flat. 레코드 항목의 개별 추출을 위함"
+    - name: flat_events
+      description: "ga를 통해 획득한 사용자의 이벤트 정보 레코드의 flat. 레코드 항목의 개별 추출을 위함"
+    - name: flat_geo
+      description: "ga를 통해 획득한 사용자의 위치 정보 레코드의 flat. 레코드 항목의 개별 추출을 위함"
+    - name: flat_traffic
+      description: "ga를 통해 획득한 사용자의 트래픽 정보 레코드의 flat. 레코드 항목의 개별 추출을 위함"
+    # models/final
     - name: user_id_matching
       description: "회원가입 직전의 사용자의 행동을 tracking을 위해 user_id와 user_pseudo_id를 matching"
       columns:
@@ -32,6 +60,133 @@ models:
           tests:
             - unique
             - not_null
+    - name: employee_info
+      description: "계정의 직원 여부 파악을 위한 직원 정보 모델"
+    - name: final_ga
+      description: "최종 ga데이터와 user_id_matching의 join, 직원 여부를 파악함"
+    - name: final_ga_maderi
+      description: "최종 ga데이터와 마대리 회원정보의 join 테이블로 시각회를 위한 최종 테이블"
+      columns:
+        - name: event_id
+          description: "stage model과의 join을 위한 key. user_pseudo_id, event_timestamp, event_name의 mix에 순서를 추가함"
+        - name: user_pseudo_id
+          description: "사용자의 가명 처리된 ID"
+        - name: user_id
+          description: "사용자가 로그인 했을 부여되는 사용자 ID"
+        - name: event_date
+          description: "이벤트 기록된 날짜"
+        - name: event_time
+          description: "이벤트 발생 시간"
+        - name: event_name
+          description: "이벤트 이름"
+        - name: ga_session_id
+          description: "세션에서 발생하는 각 이벤트와 연결된 고유한 세션 식별자"
+        - name: engagement_time_msec
+          description: "마지막 user_engagement 이벤트 후 추가 참여 시간(ms)"
+        - name: percent_scrolled
+          description: "scroll 이벤트의 고유 매개변수. 페이지 스크롤 정도"
+        - name: page_location
+          description: "user가 머문 페이지 URL"
+        - name: page_referrer
+          description: "user가 머문 페이지의 이전 페이지 URL"
+        - name: traffic_source_name
+          description: "사용자를 최초로 획득한 마케팅 캠페인의 이름. 당일 테이블에는 채워지지 않음"
+        - name: traffic_source_medium
+          description: "사용자를 최초로 획득한 매체의 이름. 당일 테이블에는 채워지지 않음"
+        - name: traffic_source_site
+          description: "사용자를 최초로 획득한 사이트의 이름. 당일 테이블에는 채워지지 않음"
+        - name: device_category
+          description: "접속 기기 카테고리"
+        - name: device_operating_system
+          description: "접속 기기 운영체제"
+        - name: device_web_info_browser
+          description: "사용자가 컨텐츠를 본 브라우저"
+        - name: geo_country
+          description: "이벤트가 보고된 국가"
+        - name: geo_region
+          description: "이벤트가 보고된 지역"
+        - name: geo_city
+          description: "이벤트가 보고된 도시"
+        - name: match_user_id
+          description: "user_id_matching 모델을 통해 user_id와 user_pseudo_id가 매칭된 항목"
+        - name: is_employee
+          description: "직원 정보 태킹을 통해 직원인지 고객인지 여부"
+        - name: accounts_user_id
+          description: "회원정보 id. 회원정보 Table의 Primary Key(기본키)"
+        - name: accounts_user_password
+          description: "회원정보 password."
+        - name: accounts_user_last_login
+          description: "회원정보, 마지막 로그인. null"
+        - name: accounts_user_email
+          description: "회원정보, 로그인 아이디"
+        - name: accounts_user_first_name
+          description: "회원정보, 회원 이름"
+        - name: accounts_user_last_name
+          description: "회원정보, 회원 성씨"
+        - name: accounts_user_is_active
+          description: "사용자의 active 여부"
+        - name: accounts_user_is_staff
+          description: "사용자가 staff인지 여부"
+        - name: accounts_user_is_admin
+          description: "사용자가 admin인지 여부"
+        - name: accounts_user_is_superuser
+          description: "사용자가 superuser인지 여부"
+        - name: accounts_user_date_joined
+          description: "사용자의 해당 계정이 join한 날짜 "
+        - name: accounts_user_created_at
+          description: "사용자의 계정이 만들어진 때"
+        - name: accounts_user_updated_at
+          description: "사용자의 계정이 업데이드된 때"
+        - name: accounts_user_sns_type
+          description: "사용자의 계정의 sns type"
+        - name: accounts_profile_id
+          description: "회원정보 프로필 id. 회원정보 프로필 Table의 Primary Key(기본키)"
+        - name: accounts_profile_company
+          description: "회원정보 프로필, 회사명"
+        - name: accounts_profile_team
+          description: "회원정보 프로필, 팀명"
+        - name: accounts_profile_position
+          description: "회원정보 프로필, 직위"
+        #- name: accounts_profile_category
+        #  description: 
+        #- name: accounts_profile_license
+        #  description:
+        - name: accounts_profile_phone_number
+          description: "회원정보 프로필, 휴대폰 번호"
+        - name: accounts_profile_marketing_info
+          description: "마케팅 수신 동의 여부"
+        - name: accounts_profile_private_info
+          description: "개인정보 수집 동의 여부"
+        # - name: accounts_profile_service_info
+        #   description: "boolean" 
+        - name: accounts_profile_level
+          description: "회원정보 프로필, 마대리 레벨"
+        - name: t_pyament_user_license
+          description: "사용자의 라이선스 종류"
+        - name: t_payment_user_license_status
+          description: "사용자의 라이선스 상태. active or expire"
+        - name: t_user_keyword_name
+          description: "사용자가 등록한 키워드의 키워드명"
+        - name: t_user_keyword_synonym
+          description: "사용자가 등록한 키워드의 유의어"
+        - name: t_user_keyword_exclusion_word
+          description: "사용자가 등록한 키워드의 제외어"
+        - name: t_user_keyword_created_at
+          description: "사용자가 등록한 기워드의 생성일자"
+        - name: t_user_keyword_is_own
+          description: "사용자가 등록한 채널이 소유하고 있는 채널인지"
+        - name: t_ch_user_data_ch_id
+          description: "사용자가 등록한 채널 정보 id. 채널정보 Table의 Primary Key(기본키)"
+        - name: t_ch_user_data_is_own
+          description: "사용자가 등록한 채널이 사용자가 소유하고 있는 채널인지 여부"
+        - name: t_ch_user_data_sns_type
+          description: "사용자가 등록한 채널의 sns 종류. facebook, insta 등"
+        - name: t_ch_user_data_created_at
+          description: "사용자가 등록한 채널의 생성일자"
+        - name: t_payment_license_price
+          description: "라이선스의 가격"
+        - name: accounts_loginhistory_created_at
+          description: "로그인 히스토리의 첫 로그인 시간"
 sources:
   - name: ga_events
     database: maderi-cdp
