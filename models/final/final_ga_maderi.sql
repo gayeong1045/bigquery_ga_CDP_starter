@@ -47,6 +47,8 @@ select
     b.accounts_profile_service_info,
     b.accounts_profile_level,
     c.t_payment_user_license_license as t_pyament_user_license,
+    c.t_payment_user_license_start_date,
+    c.t_payment_user_license_end_date,
     c.t_payment_user_license_status,
     d.t_user_keyword_keyword_name as t_user_keyword_name,
     d.t_user_keyword_synonym,
@@ -59,15 +61,17 @@ select
     e.t_ch_user_data_created_at,
     f.t_payment_license_table_price as t_payment_license_price,
     g.accounts_loginhistory_created_at
-from {{ref('final_ga')}} a  left join {{ref('stg_accounts')}} b
+from {{ref('final_ga')}} a  full outer join {{ref('stg_accounts')}} b
                                 on a.match_user_id = b.user_id
                             left join {{ref('stg_payment_user_license')}} c 
-                                on a.match_user_id = c.user_id
+                                on b.user_id = c.user_id
                             left join {{ref('stg_user_keyword')}} d
-                                on a.match_user_id = d.user_id
+                                on b.user_id = d.user_id
                             left join {{ref('stg_user_ch')}} e 
-                                on a.match_user_id = e.user_id
+                                on b.user_id = e.user_id
                             left join {{ref('stg_payment_license_info')}} f 
                                 on c.t_payment_user_license_license = f.t_payment_license_table_license
                             left join {{ref('stg_accounts_history')}} g 
-                                on a.match_user_id = g.user_id
+                                on b.user_id = g.user_id
+                            left join {{ref('stg_payment_history')}} h 
+                                on b.user_id = h.user_id
