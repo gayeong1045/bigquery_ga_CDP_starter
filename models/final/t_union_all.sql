@@ -49,7 +49,6 @@ with union_all as (
         ga.geo_country,
         ga.geo_region,
         ga.geo_city,
-        ga.is_employee,
         NULL as t_user_keyword_name,            -- ga 데이터가 아닌 column은 NULL 처리 후 alias로 column명 지정
         NULL as t_user_keyword_synonym,
         NULL as t_user_keyword_exclusion_word,
@@ -60,6 +59,10 @@ with union_all as (
         NULL as t_payment_history_amount,
         NULL as t_payment_history_name,
         NULL as t_payment_history_status,
+        CASE                                    -- user_id를 통해 직원/고객 구분
+            when ga.match_user_id in (select user_id from {{ ref('employee_info') }}) then 'employee'
+            else 'customer'
+        END AS is_employee,
         CASE                                    -- 마지막 column은 table 구분자로 table 상의 데이터가 어떤 개별적인 table에서 추출됐는지 구별
             WHEN ga.event_time IS NOT NULL
             THEN 'GA'
@@ -116,7 +119,6 @@ with union_all as (
         NULL,
         NULL,
         NULL,
-        NULL,
         NULL,  
         a.t_user_keyword_keyword_name,
         a.t_user_keyword_synonym,
@@ -128,6 +130,10 @@ with union_all as (
         NULL,
         NULL,
         NULL,
+        CASE
+            when a.user_id in (select user_id from {{ ref('employee_info') }}) then 'employee'
+            else 'customer'
+        END,
         CASE 
             WHEN a.t_user_keyword_created_at IS NOT NULL
             THEN 't_user_keyword'
@@ -189,13 +195,16 @@ with union_all as (
         NULL,
         NULL,
         NULL,
-        NULL,
         b.t_ch_user_data_ch_id,
         b.t_ch_user_data_is_own,
         b.t_ch_user_data_sns_type,
         NULL,
         NULL,
         NULL,
+        CASE
+            when b.user_id in (select user_id from {{ ref('employee_info') }}) then 'employee'
+            else 'customer'
+        END,
         CASE 
             WHEN b.t_ch_user_data_created_at IS NOT NULL
             THEN 't_ch_user_data' 
@@ -263,7 +272,10 @@ with union_all as (
         NULL,
         NULL,
         NULL,
-        NULL,
+        CASE
+            when c.user_id in (select user_id from {{ ref('employee_info') }}) then 'employee'
+            else 'customer'
+        END,
         CASE 
             WHEN c.accounts_loginhistory_created_at IS NOT NULL
             THEN 'accounts_loginhistory'
@@ -328,10 +340,13 @@ with union_all as (
         NULL,
         NULL,
         NULL,
-        NULL,
         d.t_payment_history_amount,
         d.t_payment_history_name,
         d.t_payment_history_status,
+        CASE
+            when d.user_id in (select user_id from {{ ref('employee_info') }}) then 'employee'
+            else 'customer'
+        END,
         CASE 
             WHEN d.t_payment_history_event_at IS NOT NULL
             THEN 't_payment_history'
