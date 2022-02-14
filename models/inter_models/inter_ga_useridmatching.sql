@@ -7,7 +7,7 @@ with user_info as (
         user_id,
         timestamp_micros(event_timestamp) as event_time,
         concat(user_pseudo_id, ifnull(user_id," ")) as distinct_key
-    from {{ref('stg_events_customized')}}
+    from {{ref('stg_ga')}}
     order by user_pseudo_id
 ),
 

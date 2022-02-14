@@ -1,11 +1,26 @@
 -- 유,무료 계정별 고객 segment.
 -- 로그인 횟수로 평균 이상 및 미만 평가
-with count_loginhistory_trial as (  
+with accounts_license as (
+    select
+        user_id,
+        accounts_profile_license as accounts_license
+    from {{ ref('stg_maderi_accounts') }}
+),
+
+accounts_license_loginhistory (
+    select
+        a.user_id,
+        a.accounts_loginhistory_created_at,
+        b.accounts_license
+    from {{ ref('stg_maderi_accountshistory') }} a left join accounts_license b on a.user_id = b.user_id
+),
+
+count_loginhistory_trial as (  
     select
         user_id,
         accounts_license,
         count(accounts_loginhistory_created_at) as login_count
-    from {{ ref('stg_accounts_license_loginhistory') }}
+    from accounts_license_loginhistory
     WHERE
         accounts_license = 'NP0000'
     group by user_id, accounts_license
@@ -37,7 +52,7 @@ count_loginhistory_paid as (
         user_id,
         accounts_license,
         count(accounts_loginhistory_created_at) as login_count
-    from {{ ref('stg_accounts_license_loginhistory') }}
+    from accounts_license_loginhistory
     WHERE
         accounts_license = 'CP1000' or
         accounts_license = 'CP2000' or

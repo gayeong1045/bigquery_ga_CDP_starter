@@ -57,7 +57,7 @@ account_payment_user_license as (
 
         t_payment_user_license_license
 
-    from  t_payment_user_license left join {{ ref('stg_accounts') }}
+    from  t_payment_user_license left join {{ ref('stg_maderi_accounts') }}
 
         on t_payment_user_license_user_id = accounts_user_id
 

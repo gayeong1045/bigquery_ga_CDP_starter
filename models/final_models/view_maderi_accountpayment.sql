@@ -6,4 +6,4 @@ select
     sa.accounts_profile_license,
     ph.t_payment_history_event_at,
     ph.t_payment_history_amount
-from {{ ref('stg_accounts') }} sa left join {{ ref('stg_payment_history') }} ph on sa.user_id = ph.user_id
+from {{ ref('stg_maderi_accounts') }} sa left join {{ ref('stg_maderi_paymenthistory') }} ph on sa.user_id = ph.user_id

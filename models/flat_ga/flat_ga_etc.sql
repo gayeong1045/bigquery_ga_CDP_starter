@@ -32,6 +32,6 @@ SELECT
   -- item 은 비어있으므로 생략 
   -- 추가 필요시 참고) https://www.ga4bigquery.com/tutorial-how-to-flatten-the-ga4-bigquery-export-schema-for-relational-databases-using-unnest/ 
 
-from {{ref('stg_events_customized')}},
+from {{ref('stg_ga')}},
 UNNEST(user_properties) AS user_properties
 
