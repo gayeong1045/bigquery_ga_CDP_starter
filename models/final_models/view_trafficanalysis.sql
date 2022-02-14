@@ -5,7 +5,7 @@ with non_flat as (
         user_id,
         event_date,
         timestamp_micros(event_timestamp) as event_time
-    from {{ref('stg_events_customized')}}
+    from {{ref('stg_ga')}}
 ),
 
 event_info as (
@@ -17,7 +17,7 @@ event_info as (
         max(if(event_params_key = 'percent_scrolled', event_params_value_int, null)) as percent_scrolled,        
         max(if(event_params_key = 'page_location', event_params_value_string, null)) as page_location,
         max(if(event_params_key = 'page_referrer', event_params_value_string, null)) as page_referrer
-    from {{ ref('flat_events') }}
+    from {{ ref('flat_ga_events') }}
     group by event_id, event_name
 ),
 
@@ -45,11 +45,11 @@ fin_ga as (
         e.geo_city
     from non_flat a left join event_info b 
                         on a.event_id = b.event_id 
-                    left join {{ref('flat_traffic')}} c
+                    left join {{ref('flat_ga_traffic')}} c
                         on a.event_id = c.event_id
-                    left join {{ref('flat_device')}} d
+                    left join {{ref('flat_ga_device')}} d
                         on a.event_id = d.event_id
-                    left join {{ref('flat_geo')}} e
+                    left join {{ref('flat_ga_geo')}} e
                         on a.event_id = e.event_id
 ),
 
@@ -57,7 +57,7 @@ fin_ga as (
 user_id_vlookup as(
     select 
         *
-    from fin_ga a left join {{ref('user_id_matching')}} b
+    from fin_ga a left join {{ref('inter_ga_useridmatching')}} b
         on a.user_pseudo_id = b.match_user_pseudo_id
 ),
 
@@ -66,7 +66,7 @@ tagging_employee as (
     select 
         *,
         case
-            when match_user_id in (select user_id from {{ref('employee_info')}}) then 'employee'
+            when match_user_id in (select user_id from {{ref('cal_accounts_loginsegment')}}) then 'employee'
             else 'customer'
         end as is_employee
     from user_id_vlookup 

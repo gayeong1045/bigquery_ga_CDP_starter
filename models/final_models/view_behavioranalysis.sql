@@ -48,8 +48,8 @@ with account_ga_join as (
         ga.geo_country,
         ga.geo_region,
         ga.geo_city,
-    from {{ ref('stg_accounts') }} sa
-    left join {{ ref('final_ga') }} ga on sa.user_id = ga.match_user_id
+    from {{ ref('stg_maderi_accounts') }} sa
+    left join {{ ref('view_trafficanalysis') }} ga on sa.user_id = ga.match_user_id
 ),
 
 account_kewyword_join as (
@@ -81,14 +81,14 @@ account_kewyword_join as (
         sa.accounts_profile_private_info,
         sa.accounts_profile_service_info,
         sa.accounts_profile_level,
-        a.t_user_keyword_created_at,            -- t_user_keyword의 time값은 TIMESTAMP 자료형
+        a.t_user_keyword_created_at,
         a.user_id,
         a.t_user_keyword_keyword_name,
         a.t_user_keyword_synonym,
         a.t_user_keyword_exclusion_word,
         a.t_user_keyword_is_own, 
-    from {{ ref('stg_accounts') }} sa
-    left join {{ref('stg_user_keyword')}} a on sa.user_id = a.user_id
+    from {{ ref('stg_maderi_accounts') }} sa
+    left join {{ref('stg_maderi_userkeyword')}} a on sa.user_id = a.user_id
 ),
 
 account_ch_join as (
@@ -125,8 +125,8 @@ account_ch_join as (
         b.t_ch_user_data_ch_id,
         b.t_ch_user_data_is_own,
         b.t_ch_user_data_sns_type,
-    from {{ ref('stg_accounts') }} sa 
-    left join {{ref('stg_user_ch')}} b on sa.user_id = b.user_id
+    from {{ ref('stg_maderi_accounts') }} sa 
+    left join {{ref('stg_maderi_userch')}} b on sa.user_id = b.user_id
 ),
 
 account_history_join as (
@@ -160,8 +160,8 @@ account_history_join as (
         sa.accounts_profile_level,
         c.accounts_loginhistory_created_at,             -- accounts_loginhistory의 time값은 TIMESTAMP 자료형
         c.user_id,
-    from {{ ref('stg_accounts') }} sa 
-    left join {{ ref('stg_accounts_history') }} c on sa.user_id = c.user_id
+    from {{ ref('stg_maderi_accounts') }} sa 
+    left join {{ ref('stg_maderi_accountshistory') }} c on sa.user_id = c.user_id
 ),
 
 account_payment_join as (
@@ -198,8 +198,8 @@ account_payment_join as (
         d.t_payment_history_amount,
         d.t_payment_history_name,
         d.t_payment_history_status,
-    from {{ ref('stg_accounts') }} sa 
-    left join {{ref('stg_payment_history')}} d on sa.user_id = d.user_id
+    from {{ ref('stg_maderi_accounts') }} sa 
+    left join {{ref('stg_maderi_paymenthistory')}} d on sa.user_id = d.user_id
 ),
 
 -- join 후 union all
@@ -266,7 +266,7 @@ union_all as (
         NULL as t_payment_history_name,
         NULL as t_payment_history_status,
         CASE                                    -- user_id를 통해 직원/고객 구분
-            when match_user_id in (select user_id from {{ ref('employee_info') }}) then 'employee'
+            when match_user_id in (select user_id from {{ ref('inter_accounts_employeeinfo') }}) then 'employee'
             else 'customer'
         END AS is_employee,
        'GA'as discriminator
@@ -334,7 +334,7 @@ union_all as (
         NULL,
         NULL,
         CASE
-            when user_id in (select user_id from {{ ref('employee_info') }}) then 'employee'
+            when user_id in (select user_id from {{ ref('inter_accounts_employeeinfo') }}) then 'employee'
             else 'customer'
         END,
         't_user_keyword'
@@ -402,7 +402,7 @@ union_all as (
         NULL,
         NULL,
         CASE
-            when user_id in (select user_id from {{ ref('employee_info') }}) then 'employee'
+            when user_id in (select user_id from {{ ref('inter_accounts_employeeinfo') }}) then 'employee'
             else 'customer'
         END,
         't_ch_user_data' 
@@ -470,7 +470,7 @@ union_all as (
         NULL,
         NULL,
         CASE
-            when user_id in (select user_id from {{ ref('employee_info') }}) then 'employee'
+            when user_id in (select user_id from {{ ref('inter_accounts_employeeinfo') }}) then 'employee'
             else 'customer'
         END,
         'accounts_loginhistory'
@@ -538,7 +538,7 @@ union_all as (
         t_payment_history_name,
         t_payment_history_status,
         CASE
-            when user_id in (select user_id from {{ ref('employee_info') }}) then 'employee'
+            when user_id in (select user_id from {{ ref('inter_accounts_employeeinfo') }}) then 'employee'
             else 'customer'
         END,
          't_payment_history'
@@ -546,5 +546,5 @@ union_all as (
 )
 
 select *
-from union_all ua left join {{ ref('loginhistory_evaluation') }} le
+from union_all ua left join {{ ref('cal_accounts_loginsegment') }} le
 on ua.userID = le.userID_account

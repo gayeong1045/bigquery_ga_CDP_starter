@@ -24,7 +24,7 @@ SELECT
   device.web_info.browser_version as device_web_info_browser_version,
   device.web_info.hostname as device_web_info_hostname
 
-from {{ref('stg_events_customized')}}
+from {{ref('stg_ga')}}
 			
 	
     			

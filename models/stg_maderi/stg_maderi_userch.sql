@@ -8,7 +8,7 @@
 
 with account as(
 
-    select * from {{ ref('stg_accounts') }}
+    select * from {{ ref('stg_maderi_accounts') }}
 
 ),
 

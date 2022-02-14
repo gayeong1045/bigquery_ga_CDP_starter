@@ -11,4 +11,4 @@ SELECT
   traffic_source.medium as traffic_source_medium,
   traffic_source.source as traffic_source_site
 
-from {{ref('stg_events_customized')}}
+from {{ref('stg_ga')}}

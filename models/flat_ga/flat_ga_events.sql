@@ -19,5 +19,5 @@ SELECT
   params.value.float_value as event_params_value_float,
   params.value.double_value as event_params_value_double
 
-from {{ref('stg_events_customized')}},
+from {{ref('stg_ga')}},
 UNNEST(event_params) AS params
