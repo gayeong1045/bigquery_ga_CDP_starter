@@ -1,5 +1,5 @@
 {{ config(
-    materialized='table'
+    materialized='view'
 )}}
 
 with t_payment_history as (

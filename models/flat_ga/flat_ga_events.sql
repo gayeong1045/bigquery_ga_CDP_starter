@@ -1,7 +1,7 @@
 -- incremental로 증분 추출/분석 
 
 {{ config(
-    materialized='table'
+    materialized='view'
 )}}
 
 -- unique한 event_params_value 22개의 값을 int로 가지는 6개 변수

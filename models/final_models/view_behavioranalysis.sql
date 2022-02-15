@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized='table'
+    )
+}}
+
 with account_ga_join as (
     select
         sa.accounts_user_id, 
@@ -268,7 +274,7 @@ union_all as (
         CASE                                    -- user_id를 통해 직원/고객 구분
             when match_user_id in (select user_id from {{ ref('inter_accounts_employeeinfo') }}) then 'employee'
             else 'customer'
-        END AS is_employee,
+        END AS is__employee,
        'GA'as discriminator
     from account_ga_join
 
