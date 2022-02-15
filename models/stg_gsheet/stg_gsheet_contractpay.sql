@@ -1,0 +1,1 @@
+select * from {{source('gsheet', 't_payment_cp_manual')}}
