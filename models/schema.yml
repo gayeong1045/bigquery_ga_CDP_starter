@@ -2,38 +2,23 @@
 version: 2
 
 models:
-    - name: dedup_events
-      description: "Source table for other models. Takes all data from `events_` and (if available) `events_intraday_` tables and deduplicates by user_pseudo_id, event_name and event_timestamp."
-
-    - name: pageviews_proc
-      description: "Flattening the `pageviews` event into rows.  All columns named as they appear in the `events_` table."
-
-    - name: user_page_paths
-      description: "Supports page path sequence reporting. Tags each pageview event from `pageviews_proc` with a `session_event_order`."
-      columns:
-          - name: session_event_order
-            description: "Pageview number for the session"
-            tests:
-                - not_null
-          - name: user_type
-            description: "New vs existing, based on `user_first_touch_timestamp`."
-    # models/ma_stg
-    - name: stg_accounts 
+    # models/stg_maderi
+    - name: stg_maderi_accounts 
       description: "마대리 DB로부터 회원정보와 회원정보 프로필을 불러오는 모델"
-    - name: stg_accounts_history
+    - name: stg_maderi_accountshistory
       description: "마대리 DB로부터 로그인 히스토리를 불러오는 모델"
-    - name: stg_payment_history
+    - name: stg_maderi_paymenthistory
       description: "마대리 DB로부터 결제 히스토리를 불러오는 모델"
-    - name: stg_payment_license_info
+    - name: stg_maderi_paymentlicenseinfo
       description: "마대리 DB로부터 라이선스 종류 정보를 불러오는 모델"
-    - name: stg_payment_user_license
+    - name: stg_maderi_paymentuserlicense
       description: "마대리 DB로부터 사용자별 라이선스 유형 및 사용여부 정보를 불러오는 모델"
-    - name: stg_user_ch
+    - name: stg_maderi_userch
       description: "마대리 DB로부터 사용자가 등록한 채널 정보를 불러오는 모델"
-    - name: stg_user_keyword
+    - name: stg_maderi_userkeyword
       description: "마대리 DB로부터 사용자가 등록한 키워드 정보를 불러오는 모델"
-    # models/ga_stg
-    - name: stg_events_customized
+    # models/stg_ga
+    - name: stg_ga
       description: "ga데이터를 staging하고 unique한 id를 추가한 테이블."
       columns:
           - name: event_id
@@ -41,76 +26,41 @@ models:
             tests:
                 - not_null
                 - unique
-    # models/ga_flat
-    - name: flat_device
+    # models/flat_ga
+    - name: flat_ga_device
       description: "ga를 통해 획득한 사용자의 device 정보 레코드의 flat. 레코드 항목의 개별 추출을 위함"
-    - name: flat_etc
+    - name: flat_ga_etc
       description: "ga를 통해 획득한 사용자의 기타 정보 레코드의 flat. 레코드 항목의 개별 추출을 위함"
-    - name: flat_events
+    - name: flat_ga_events
       description: "ga를 통해 획득한 사용자의 이벤트 정보 레코드의 flat. 레코드 항목의 개별 추출을 위함"
-    - name: flat_geo
+    - name: flat_ga_geo
       description: "ga를 통해 획득한 사용자의 위치 정보 레코드의 flat. 레코드 항목의 개별 추출을 위함"
-    - name: flat_traffic
+    - name: flat_ga_traffic
       description: "ga를 통해 획득한 사용자의 트래픽 정보 레코드의 flat. 레코드 항목의 개별 추출을 위함"
-    # models/final
-    - name: user_id_matching
+    # models/inter_models
+    - name: cal_accounts_loginsegment
+      description: "유료 및 무료 회원 로그인 횟수 파악 모델"
+    - name: inter_accounts_employeeinfo
+      description: "계정의 직원 여부 파악을 위한 직원 정보 모델"
+    - name: inter_ga_useridmatching
       description: "회원가입 직전의 사용자의 행동을 tracking을 위해 user_id와 user_pseudo_id를 matching"
       columns:
         - name: match_user_pseudo_id
           tests:
             - unique
             - not_null
-    - name: employee_info
-      description: "계정의 직원 여부 파악을 위한 직원 정보 모델"
-    - name: final_ga
-      description: "최종 ga데이터와 user_id_matching의 join, 직원 여부를 파악함"
+    # models/final_models
     - name: final_ga_maderi
-      description: "최종 ga데이터와 마대리 회원정보의 join 테이블로 시각회를 위한 최종 테이블"
+      description: "최종 ga데이터와 마대리 회원정보의 join 테이블."
+    - name: view_trafficanalysis
+      description: "최종 ga데이터와 user_id_matching의 join, ga 데이터 시각화 모델."
+    - name: view_behavioranalysis
+      description: "대시보드 시각화를 위한 최종 union all 테이블."
       columns:
-        - name: event_id
-          description: "stage model과의 join을 위한 key. user_pseudo_id, event_timestamp, event_name의 mix에 순서를 추가함"
-        - name: user_pseudo_id
-          description: "사용자의 가명 처리된 ID"
-        - name: user_id
-          description: "사용자가 로그인 했을 부여되는 사용자 ID"
-        - name: event_date
-          description: "이벤트 기록된 날짜"
-        - name: event_time
+        - name: TIME
           description: "이벤트 발생 시간"
-        - name: event_name
-          description: "이벤트 이름"
-        - name: ga_session_id
-          description: "세션에서 발생하는 각 이벤트와 연결된 고유한 세션 식별자"
-        - name: engagement_time_msec
-          description: "마지막 user_engagement 이벤트 후 추가 참여 시간(ms)"
-        - name: percent_scrolled
-          description: "scroll 이벤트의 고유 매개변수. 페이지 스크롤 정도"
-        - name: page_location
-          description: "user가 머문 페이지 URL"
-        - name: page_referrer
-          description: "user가 머문 페이지의 이전 페이지 URL"
-        - name: traffic_source_name
-          description: "사용자를 최초로 획득한 마케팅 캠페인의 이름. 당일 테이블에는 채워지지 않음"
-        - name: traffic_source_medium
-          description: "사용자를 최초로 획득한 매체의 이름. 당일 테이블에는 채워지지 않음"
-        - name: traffic_source_site
-          description: "사용자를 최초로 획득한 사이트의 이름. 당일 테이블에는 채워지지 않음"
-        - name: device_category
-          description: "접속 기기 카테고리"
-        - name: device_operating_system
-          description: "접속 기기 운영체제"
-        - name: device_web_info_browser
-          description: "사용자가 컨텐츠를 본 브라우저"
-        - name: geo_country
-          description: "이벤트가 보고된 국가"
-        - name: geo_region
-          description: "이벤트가 보고된 지역"
-        - name: geo_city
-          description: "이벤트가 보고된 도시"
-        - name: match_user_id
-          description: "user_id_matching 모델을 통해 user_id와 user_pseudo_id가 매칭된 항목"
-        - name: is_employee
-          description: "직원 정보 태킹을 통해 직원인지 고객인지 여부"
+        - name: userID 
+          description: "match_user_id의 alias. ga_user_id와 구분을 위함."
         - name: accounts_user_id
           description: "회원정보 id. 회원정보 Table의 Primary Key(기본키)"
         - name: accounts_user_password
@@ -148,7 +98,11 @@ models:
         - name: accounts_profile_position
           description: "회원정보 프로필, 직위"
         #- name: accounts_profile_category
-        #  description: 
+        #  description:
+        - name: accounts_profile_created_at
+          description: "회원정보 생성일"
+        - name: accounts_profile_updated_at
+          description: "회원정보 업데이트일"
         #- name: accounts_profile_license
         #  description:
         - name: accounts_profile_phone_number
@@ -161,18 +115,56 @@ models:
         #   description: "boolean" 
         - name: accounts_profile_level
           description: "회원정보 프로필, 마대리 레벨"
-        - name: t_pyament_user_license
+        - name: event_id
+          description: "stage model과의 join을 위한 key. user_pseudo_id, event_timestamp, event_name의 mix에 순서를 추가함"
+        - name: user_pseudo_id
+          description: "사용자의 가명 처리된 ID"
+        - name: ga_user_id
+          description: "사용자가 로그인 했을 부여되는 사용자 ID"
+        - name: event_date
+          description: "이벤트 기록된 날짜"
+        - name: event_name
+          description: "이벤트 이름"
+        - name: ga_session_id
+          description: "세션에서 발생하는 각 이벤트와 연결된 고유한 세션 식별자"
+        - name: engagement_time_msec
+          description: "마지막 user_engagement 이벤트 후 추가 참여 시간(ms)"
+        - name: percent_scrolled
+          description: "scroll 이벤트의 고유 매개변수. 페이지 스크롤 정도"
+        - name: page_location
+          description: "user가 머문 페이지 URL"
+        - name: page_referrer
+          description: "user가 머문 페이지의 이전 페이지 URL"
+        - name: traffic_source_name
+          description: "사용자를 최초로 획득한 마케팅 캠페인의 이름. 당일 테이블에는 채워지지 않음"
+        - name: traffic_source_medium
+          description: "사용자를 최초로 획득한 매체의 이름. 당일 테이블에는 채워지지 않음"
+        - name: traffic_source_site
+          description: "사용자를 최초로 획득한 사이트의 이름. 당일 테이블에는 채워지지 않음"
+        - name: device_category
+          description: "접속 기기 카테고리"
+        - name: device_operating_system
+          description: "접속 기기 운영체제"
+        - name: device_web_info_browser
+          description: "사용자가 컨텐츠를 본 브라우저"
+        - name: geo_country
+          description: "이벤트가 보고된 국가"
+        - name: geo_region
+          description: "이벤트가 보고된 지역"
+        - name: geo_city
+          description: "이벤트가 보고된 도시"
+        - name: t_payment_history_amount
+          description: "사용자의 결제 금액"
+        - name: t_payment_history_name
           description: "사용자의 라이선스 종류"
-        - name: t_payment_user_license_status
-          description: "사용자의 라이선스 상태. active or expire"
+        - name: t_payment_history_status
+          description: "사용자의 라이선스 상태"
         - name: t_user_keyword_name
           description: "사용자가 등록한 키워드의 키워드명"
         - name: t_user_keyword_synonym
           description: "사용자가 등록한 키워드의 유의어"
         - name: t_user_keyword_exclusion_word
           description: "사용자가 등록한 키워드의 제외어"
-        - name: t_user_keyword_created_at
-          description: "사용자가 등록한 기워드의 생성일자"
         - name: t_user_keyword_is_own
           description: "사용자가 등록한 채널이 소유하고 있는 채널인지"
         - name: t_ch_user_data_ch_id
@@ -181,12 +173,16 @@ models:
           description: "사용자가 등록한 채널이 사용자가 소유하고 있는 채널인지 여부"
         - name: t_ch_user_data_sns_type
           description: "사용자가 등록한 채널의 sns 종류. facebook, insta 등"
-        - name: t_ch_user_data_created_at
-          description: "사용자가 등록한 채널의 생성일자"
-        - name: t_payment_license_price
-          description: "라이선스의 가격"
-        - name: accounts_loginhistory_created_at
-          description: "로그인 히스토리의 첫 로그인 시간"
+        - name: is_employee
+          description: "account의 직원 및 고객 구분"
+        - name: discriminator
+          description: "union all에서 어떤 테이블로부터 나타난 정보인지 확인하는 구분자"
+    - name: view_maderi_accountpayment
+      description: "account 테이블과 payment 테이블의 join. company의 결제내역 확인 가능"
+    - name: view_maderi_licensecount
+      description: "라이센스별 종류별 집계 테이블"
+        
+        
 sources:
   - name: ga_events
     database: maderi-cdp

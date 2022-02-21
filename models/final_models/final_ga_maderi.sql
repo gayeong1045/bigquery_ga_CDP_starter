@@ -1,9 +1,9 @@
 select 
     a.event_id,
     a.user_pseudo_id,
-    a.user_id,
+    a.ga_user_id,
     a.event_date,
-    a.event_time,
+    a.Time,
     a.event_name,
     a.ga_session_id,
     a.engagement_time_msec,
@@ -19,7 +19,7 @@ select
     a.geo_country,
     a.geo_region,
     a.geo_city,
-    a.match_user_id,
+    a.userID,
     a.is_employee,
     b.accounts_user_id,
     b.accounts_user_password,
@@ -65,17 +65,17 @@ select
     h.t_payment_history_amount,
     h.t_payment_history_name,
     h.t_payment_history_status
-from {{ref('final_ga')}} a  full outer join {{ref('stg_accounts')}} b
-                                on a.match_user_id = b.user_id
-                            left join {{ref('stg_payment_user_license')}} c 
+from {{ref('view_behavioranalysis')}} a  full outer join {{ref('stg_maderi_accounts')}} b
+                                on a.userID = b.user_id
+                            left join {{ref('stg_maderi_paymentuserlicense')}} c 
                                 on b.user_id = c.user_id
-                            left join {{ref('stg_user_keyword')}} d
+                            left join {{ref('stg_maderi_userkeyword')}} d
                                 on b.user_id = d.user_id
-                            left join {{ref('stg_user_ch')}} e 
+                            left join {{ref('stg_maderi_userch')}} e 
                                 on b.user_id = e.user_id
-                            left join {{ref('stg_payment_license_info')}} f 
+                            left join {{ref('stg_maderi_paymentlicenseinfo')}} f 
                                 on b.accounts_profile_license = f.t_payment_license_table_license
-                            left join {{ref('stg_accounts_history')}} g 
+                            left join {{ref('stg_maderi_accountshistory')}} g 
                                 on b.user_id = g.user_id
-                            left join {{ref('stg_payment_history')}} h 
+                            left join {{ref('stg_maderi_paymenthistory')}} h 
                                 on b.user_id = h.user_id

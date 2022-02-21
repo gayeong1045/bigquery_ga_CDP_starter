@@ -1,7 +1,7 @@
 -- incremental로 증분 추출/분석 
 
 {{ config(
-    materialized='table'
+    materialized='view'
 )}}
 
 

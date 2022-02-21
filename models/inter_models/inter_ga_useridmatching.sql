@@ -1,6 +1,10 @@
 -- 처음 로그인한 시점의 user id에 해당하는 user_pseudo_id의 리스트 
 -- 하나의 user_pseudo_id에 두개 이상의 user_id가 매칭되는 것을 막기 위해 발생시간이 더 짧은 것만 남기고 삭제
 
+{{ config(
+    materialized='view'
+)}}
+
 with user_info as (
     select 
         user_pseudo_id, 

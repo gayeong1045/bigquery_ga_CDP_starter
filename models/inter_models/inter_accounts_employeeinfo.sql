@@ -1,3 +1,7 @@
+{{ config(
+    materialized='view'
+)}}
+
 SELECT 
     user_id,
     accounts_user_id, 
