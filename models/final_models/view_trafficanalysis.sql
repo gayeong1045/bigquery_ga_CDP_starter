@@ -22,7 +22,8 @@ event_info as (
         max(if(event_params_key = 'engagement_time_msec', event_params_value_int, null)) as engagement_time_msec,
         max(if(event_params_key = 'percent_scrolled', event_params_value_int, null)) as percent_scrolled,        
         max(if(event_params_key = 'page_location', event_params_value_string, null)) as page_location,
-        max(if(event_params_key = 'page_referrer', event_params_value_string, null)) as page_referrer
+        max(if(event_params_key = 'page_referrer', event_params_value_string, null)) as page_referrer,
+        max(if(event_params_key = 'term', event_params_value_string, null)) as term
     from {{ ref('flat_ga_events') }}
     group by event_id, event_name
 ),
@@ -40,6 +41,7 @@ fin_ga as (
         b.percent_scrolled,        
         b.page_location,
         b.page_referrer,
+        b.term,
         c.traffic_source_name,
         c.traffic_source_medium,
         c.traffic_source_site,

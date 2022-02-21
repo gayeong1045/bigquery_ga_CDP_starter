@@ -13,6 +13,7 @@
 SELECT
   event_id,
   event_date,
+  timestamp_micros(event_timestamp) as event_time,
   event_name,
   user_id,
   user_pseudo_id,
