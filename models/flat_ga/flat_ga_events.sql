@@ -12,7 +12,11 @@
 
 SELECT
   event_id,
+  event_date,
+  timestamp_micros(event_timestamp) as event_time,
   event_name,
+  user_id,
+  user_pseudo_id,
   params.key as event_params_key,
   params.value.string_value as event_params_value_string,
   params.value.int_value as event_params_value_int,

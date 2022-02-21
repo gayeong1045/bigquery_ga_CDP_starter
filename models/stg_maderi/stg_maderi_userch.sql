@@ -5,14 +5,9 @@
 )}}
 
 
-
 with account as(
-
     select * from {{ ref('stg_maderi_accounts') }}
-
 ),
-
-
 
 t_ch_user_data as (
 
@@ -37,29 +32,17 @@ t_ch_user_data as (
 
 
 account_ch_user_data as (
-
     select
-
         user_id,
-
         t_ch_user_data_user_id, -- 마대리 db 내 join key
-
         t_ch_user_data_ch_id,
-
         t_ch_user_data_is_own,
-
         t_ch_user_data_sns_type,
-
         t_ch_user_data_created_at,
-
         t_ch_user_data_updated_at
-
     from t_ch_user_data left join account
-
         on t_ch_user_data_user_id = accounts_user_id
-
 )
-
 
 
 select * from account_ch_user_data

@@ -1,15 +1,18 @@
--- 라이센스 내역, 집계 테이블
+-- depends_on: {{ ref('stg_maderi_accounts') }}
+
 {{
     config(
-        materialized='incremental'
+        materialized='incremental',
+        unique_key='today'
     )
 }}
 
 select
-    current_date() as date,
-    accounts_profile_license,
-    count(accounts_profile_license) as count_license
-from {{ ref('stg_maderi_accounts') }}
-group by accounts_profile_license
+    *
+from {{ref('cal_accounts_activeuser')}}
+{% if is_incremental() %}
 
+where today >= (select max(cast(synced_time as date)) from {{ref('stg_maderi_accounts')}})
+
+{% endif %}
 

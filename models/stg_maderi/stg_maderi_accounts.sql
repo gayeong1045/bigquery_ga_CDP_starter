@@ -37,7 +37,8 @@ accounts_profile as(
         marketing_info as accounts_profile_marketing_info,
         private_info as accounts_profile_private_info,
         service_info as accounts_profile_service_info,
-        level as accounts_profile_level
+        level as accounts_profile_level,
+        _fivetran_synced as synced_time
     from {{source('maderi_db', 'accounts_profile')}}
 ),
 
