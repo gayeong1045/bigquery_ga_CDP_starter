@@ -201,3 +201,8 @@ sources:
       - name: t_payment_license_table
       - name: t_ch_user_data
       - name: t_user_keyword
+  - name: gsheet
+    database: maderi-cdp
+    schema: google_sheets
+    tables: 
+      - name: t_payment_cp_manual   
