@@ -201,6 +201,13 @@ sources:
       - name: t_payment_license_table
       - name: t_ch_user_data
       - name: t_user_keyword
+      - name: t_ga_account_meta
+      - name: t_ga3_user_data
+      - name: t_ga3_profile_meta
+      - name: t_fb_ch_meta
+      - name: t_yt_ch_meta
+      - name: t_nblog_ch_meta
+      - name: t_insta_ch_meta
   - name: gsheet
     database: maderi-cdp
     schema: google_sheets
