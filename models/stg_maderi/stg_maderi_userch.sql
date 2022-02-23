@@ -55,4 +55,3 @@ account_ch_user_data as (
 
 
 select * from account_ch_user_data
-where t_ch_user_data_sns_type = 'website'
