@@ -15,5 +15,3 @@ where today = (select max(cast(synced_time as date)) from {{ref('stg_maderi_acco
 
 {% endif %}
 
-
-
