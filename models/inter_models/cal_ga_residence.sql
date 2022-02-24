@@ -15,6 +15,7 @@ session_sort as (
         cast(event_time as datetime) as event_time,
         page_location,
         user_pseudo_id,
+        user_id,
         ga_session_id
     from event_info
 ),
@@ -38,9 +39,10 @@ session_count as (
 select
     min(event_time) as start_time,
     user_pseudo_id,
+    user_id,
     page_location,
     min(ga_session_id) as ga_session_id,
     sum(residence_time) as residence_time
 from session_count
-group by user_pseudo_id, page_location
+group by user_pseudo_id,user_id, page_location
 order by user_pseudo_id, start_time
