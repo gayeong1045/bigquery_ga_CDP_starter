@@ -12,7 +12,7 @@ with event_info as (
 
 session_sort as (
     select distinct
-        event_time,
+        cast(event_time as datetime) as event_time,
         page_location,
         user_pseudo_id,
         ga_session_id
@@ -22,18 +22,25 @@ session_sort as (
 session_lead as (
     select 
         *,
-        lag(event_time) over(order by user_pseudo_id, event_time) as before_event_time
+        -- 이전 페이지 시작 시간을 표시, partition by 로 각 user_pseudo_id별로 그룹화함
+        lag(event_time) over(partition by user_pseudo_id order by event_time) as before_event_time
     from session_sort
 ),
 
 session_count as (
     select 
         *,
-        event_time - before_event_time as residence_time
-    from session_lead
+       date_diff(event_time, before_event_time, second) as residence_time
+    from session_lead 
     order by user_pseudo_id, event_time
 )
 
-select * from session_count
-order by user_pseudo_id, event_time
-
+select
+    min(event_time) as start_time,
+    user_pseudo_id,
+    page_location,
+    min(ga_session_id) as ga_session_id,
+    sum(residence_time) as residence_time
+from session_count
+group by user_pseudo_id, page_location
+order by user_pseudo_id, start_time
