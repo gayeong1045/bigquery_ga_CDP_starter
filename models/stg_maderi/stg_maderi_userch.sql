@@ -53,6 +53,15 @@ account_ch_user_data as (
         on a.t_ch_user_data_user_id = b.accounts_user_id
 )
 
-
-select * from account_ch_user_data
-where t_ch_user_data_sns_type = 'website'
+-- 채널 명 추가 
+select 
+    a.user_id,
+    a.t_ch_user_data_user_id,
+    a.t_ch_user_data_ch_id,
+    b.ch_name as t_ch_user_data_ch_name,
+    a.t_ch_user_data_is_own,
+    a.t_ch_user_data_sns_type,
+    a.t_ch_user_data_created_at,
+    a.t_ch_user_data_updated_at
+from account_ch_user_data a left join {{ref('stg_maderi_chmeta')}} b
+    on a.t_ch_user_data_ch_id = b.ch_id

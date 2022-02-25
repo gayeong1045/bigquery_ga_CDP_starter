@@ -128,7 +128,7 @@ account_ch_join as (
         sa.accounts_profile_level,
         b.t_ch_user_data_created_at,     -- t_ch_user_data의 time은 DATETIME 자료형으로 TIMESTAMP로 형변환
         b.user_id,
-        b.t_ch_user_data_ch_id,
+        b.t_ch_user_data_ch_name,
         b.t_ch_user_data_is_own,
         b.t_ch_user_data_sns_type,
     from {{ ref('stg_maderi_accounts') }} sa 
@@ -401,7 +401,7 @@ union_all as (
         NULL,
         NULL,
         NULL,
-        t_ch_user_data_ch_id,
+        t_ch_user_data_ch_name,
         t_ch_user_data_is_own,
         t_ch_user_data_sns_type,
         NULL,
