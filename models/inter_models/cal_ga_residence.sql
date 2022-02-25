@@ -34,15 +34,19 @@ session_count as (
        date_diff(event_time, before_event_time, second) as residence_time
     from session_lead 
     order by user_pseudo_id, event_time
-)
+),
 
+group_page as (
 select
     min(event_time) as start_time,
     user_pseudo_id,
     user_id,
     page_location,
     min(ga_session_id) as ga_session_id,
-    sum(residence_time) as residence_time
+    sum(residence_time) as residence_sec
 from session_count
 group by user_pseudo_id,user_id, page_location
 order by user_pseudo_id, start_time
+)
+
+select * from group_page
