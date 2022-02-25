@@ -1,6 +1,6 @@
 with inflow as (
     select
-        event_date,
+        event_time,
         user_pseudo_id,
         user_id,
         traffic_source_site
@@ -17,7 +17,7 @@ user_id_vlookup as(
 
 inflow_conversion as (
     select 
-        event_date as today,
+        cast(event_time as date) as today,
         user_pseudo_id,
         match_user_id,
         traffic_source_site,
