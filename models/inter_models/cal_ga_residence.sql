@@ -51,4 +51,5 @@ group by user_pseudo_id,user_id, ga_session_id, page_location
 order by user_pseudo_id, start_time
 )
 
-select * from group_page
+select * from group_page a left join {{ref('inter_ga_useridmatching')}} b
+    on a.user_pseudo_id = b.match_user_pseudo_id

@@ -130,7 +130,7 @@ account_ch_join as (
         b.user_id,
         b.t_ch_user_data_ch_name,
         b.t_ch_user_data_is_own,
-        b.t_ch_user_data_sns_type,
+        b.t_ch_user_data_sns_type
     from {{ ref('stg_maderi_accounts') }} sa 
     left join {{ref('stg_maderi_userch')}} b on sa.user_id = b.user_id
 ),
