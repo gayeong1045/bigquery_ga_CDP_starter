@@ -19,6 +19,5 @@ with traffic as (
   from {{ref('stg_ga')}}
 )
 
-select distinct traffic_source_medium from traffic
-where traffic_source_site = "SA"
+select * from traffic
 
