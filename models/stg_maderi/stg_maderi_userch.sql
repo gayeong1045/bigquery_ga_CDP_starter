@@ -51,17 +51,26 @@ account_ch_user_data as (
         a.t_ch_user_data_updated_at
     from union_website a left join account b
         on a.t_ch_user_data_user_id = b.accounts_user_id
-)
+),
 
 -- 채널 명 추가 
-select 
-    a.user_id,
-    a.t_ch_user_data_user_id,
-    a.t_ch_user_data_ch_id,
-    b.ch_name as t_ch_user_data_ch_name,
-    a.t_ch_user_data_is_own,
-    a.t_ch_user_data_sns_type,
-    a.t_ch_user_data_created_at,
-    a.t_ch_user_data_updated_at
-from account_ch_user_data a left join {{ref('stg_maderi_chmeta')}} b
-    on a.t_ch_user_data_ch_id = b.ch_id
+ch_name as (
+    select 
+        a.user_id,
+        a.t_ch_user_data_user_id,
+        a.t_ch_user_data_ch_id,
+        b.ch_name as t_ch_user_data_ch_name,
+        a.t_ch_user_data_is_own,
+        a.t_ch_user_data_sns_type,
+        a.t_ch_user_data_created_at,
+        a.t_ch_user_data_updated_at
+    from account_ch_user_data a left join {{ref('stg_maderi_chmeta')}} b
+        on a.t_ch_user_data_ch_id = b.ch_id
+),
+
+not_stdch as (
+    select * from ch_name
+    where not (t_ch_user_data_ch_name in ('굽네치킨', '교촌치킨', '굽네', '사랑아 교촌해') and t_ch_user_data_created_at >= '2022-01-25')
+)
+
+select * from not_stdch
