@@ -3,7 +3,7 @@ with inflow as (
         event_time,
         user_pseudo_id,
         user_id,
-        traffic_source_site
+        concat(traffic_source_site,'/',traffic_source_medium) as traffic_source_site,
     from {{ref('flat_ga_traffic')}}
     where event_name ='first_visit'
 ),

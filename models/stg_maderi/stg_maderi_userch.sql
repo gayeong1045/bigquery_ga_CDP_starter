@@ -70,7 +70,7 @@ ch_name as (
 
 not_stdch as (
     select * from ch_name
-    where not (t_ch_user_data_ch_name in ('굽네치킨', '교촌치킨', '굽네', '사랑아 교촌해') and t_ch_user_data_created_at >= '2022-01-25')
+    where not (t_ch_user_data_ch_name in ('굽네치킨', '교촌치킨', '굽네', '사랑아 교촌해', '굽네치킨 공식_THE 굽스터', '교촌치킨') and t_ch_user_data_created_at >= '2022-01-25')
 )
 
 select * from not_stdch
