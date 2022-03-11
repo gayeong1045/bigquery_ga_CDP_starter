@@ -70,8 +70,7 @@ ch_name as (
 
 not_stdch as (
     select * from ch_name
-    where not (t_ch_user_data_ch_name in ('푸라닭', 'BHC', '굽네치킨', '맘스터치', '교촌치킨') and t_ch_user_data_created_at >= '2022-01-25')
+    where not (t_ch_user_data_ch_name in ('굽네치킨', '교촌치킨', '굽네', '사랑아 교촌해') and t_ch_user_data_created_at >= '2022-01-25')
 )
--- 나중에 주석에 있는 내용으로 업데이트 
--- select * from not_stdch
-select * from ch_name
+
+select * from not_stdch

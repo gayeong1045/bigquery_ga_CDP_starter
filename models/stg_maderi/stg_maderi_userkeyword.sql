@@ -42,6 +42,5 @@ not_stdkeyword as (
     select * from account_user_keyword
     where not (t_user_keyword_keyword_name in ('푸라닭', 'BHC', '굽네치킨', '맘스터치', '교촌치킨') and t_user_keyword_created_at >= '2022-01-25')
 )
--- 나중에 주석에 있는 내용으로 업데이트 
--- select * from not_stdkeyword
-select * from account_user_keyword
+
+select * from not_stdkeyword
