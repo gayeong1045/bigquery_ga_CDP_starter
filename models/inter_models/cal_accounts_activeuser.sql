@@ -93,5 +93,8 @@ daily_count as (
     group by status_license
 )
 
-select b.today, a.status_license, a.daily_user_count from daily_count a
-cross join (select max(cast(synced_time as date)) as today from {{ref('stg_maderi_accounts')}}) b
+select 
+    current_date() as today,
+    status_license, 
+    daily_user_count 
+from daily_count
