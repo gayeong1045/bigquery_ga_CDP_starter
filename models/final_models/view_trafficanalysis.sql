@@ -44,6 +44,7 @@ fin_ga as (
         b.term,
         c.traffic_source_name,
         concat(c.traffic_source_site,'/',c.traffic_source_medium) as traffic_source_site,
+        c.traffic_source_medium,
         d.device_category,
         d.device_operating_system,
         d.device_web_info_browser,
