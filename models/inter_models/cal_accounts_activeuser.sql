@@ -1,7 +1,6 @@
 -- 매일 최근 활성 계정수를 count, trial 계정의 활성 기준은 회원가입시부터 15일 미만인자 
 with trial_is_active as (
     select
-        cast(synced_time as date) as today,
         user_id,
         cast(accounts_profile_created_at as date) as joined_date,
         accounts_profile_license as license,
@@ -16,7 +15,6 @@ with trial_is_active as (
 -- 매일 최근 활성 계정수를 count, 나머지 계정의 활성 기준은 payment_user_license 테이블의 status가 active인자
 etc_is_active as(
     select 
-        cast(a.synced_time as date) as today,
         a.user_id,
         a.accounts_profile_license as license,
         b.t_payment_user_license_status as status,
@@ -37,7 +35,6 @@ unique_userlicense as (
     select * from 
         (
         select
-            today,
             license,
             user_id,
             is_active,
@@ -53,14 +50,12 @@ unique_userlicense as (
 
 all_is_active as (
     select 
-        today,
         license,
         user_id,
         is_active
     from trial_is_active
     union all
     select 
-        today,
         license,
         user_id,
         is_active
@@ -69,11 +64,9 @@ all_is_active as (
 
 active_tag as (
     select
-        today,
         user_id,
         concat(is_active, '_', license) as status_license
     from all_is_active
-    order by today
 ),
 
 active_count as (
