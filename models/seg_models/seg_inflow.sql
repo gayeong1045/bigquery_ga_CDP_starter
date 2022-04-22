@@ -41,10 +41,11 @@ count_event as (
             count(event_name) as event_cnt,
             max(last_time) as last_time,
             min(first_time) as first_time,
-            date_diff(max(last_time),min(first_time),day) as visit_period
+            date_diff(max(last_time),min(first_time),day) as visit_period,
+            max(is_employee) as is_employee
         from event_info
         group by user_pseudo_id, match_user_id, event_name)
-    where event_name = 'page_view' or event_name = 'scroll' or event_name = 'click'
+    where event_name = 'page_view' or event_name = 'scroll' or event_name = 'test_btn_click_search'
     order by user_pseudo_id
 ),
 
@@ -56,26 +57,22 @@ trans_event as (
         match_user_id,
         max(if(event_name = 'page_view', daily_avg_cnt, null)) as page_view,
         max(if(event_name = 'scroll', daily_avg_cnt, null)) as scroll,
-        max(if(event_name = 'click', daily_avg_cnt, null)) as click,
+        max(if(event_name = 'test_btn_click_search', daily_avg_cnt, null)) as click,
+        max(is_employee) as is_employee
     from count_event
     group by user_pseudo_id, match_user_id
     order by user_pseudo_id
 ),
 
--- 일평균 방문수 계산
+-- 누적 방문수 계산 (방문수 = ga_session 수라고 가정)
 visit_count as (
     select
-        *,
-        if(visit_period=0, visit_cnt, visit_cnt/visit_period) as visit 
-    from 
-        (select
-            user_pseudo_id,
-            match_user_id,
-            count(distinct ga_session_id) as visit_cnt,
-            date_diff(max(last_time),min(first_time),day) as visit_period
-        from event_info 
-        group by user_pseudo_id, match_user_id
-        order by user_pseudo_id)
+        user_pseudo_id,
+        match_user_id,
+        count(distinct ga_session_id) as visit,
+    from event_info 
+    group by user_pseudo_id, match_user_id
+    order by user_pseudo_id
 ),
 
 -- 일평균 체류시간(초) 계산
@@ -114,7 +111,8 @@ seg_inflow as (
         a.scroll,
         a.click,
         b.visit,
-        c.residence
+        c.residence,
+        a.is_employee
     from trans_event a 
             left join visit_count b on a.user_pseudo_id = b.user_pseudo_id 
             left join res_sum c on a.user_pseudo_id = c.user_pseudo_id 
@@ -128,17 +126,55 @@ inflow_ch as (
         max(term) as traffic_keyword
     from {{ref('view_trafficanalysis')}}
     group by user_pseudo_id
+),
+
+before_normalize as (
+    select 
+        a.user_pseudo_id,
+        a.match_user_id,
+        a.page_view,
+        a.scroll,
+        a.click,
+        a.visit,
+        a.residence,
+        b.traffic_site,
+        b.traffic_keyword,
+        a.is_employee
+    from seg_inflow a left join inflow_ch b
+        on a.user_pseudo_id = b.user_pseudo_id
+),
+
+after_normalize as (
+    select
+        user_pseudo_id,
+        match_user_id,
+        page_view,
+        scroll,
+        click,
+        visit,
+        residence,
+        (page_view-min_page_view)/(max_page_view-min_page_view) as z_page_view,
+        (scroll-min_scroll)/(max_scroll-min_scroll) as z_scroll,
+        (click-min_click)/(max_click-min_click) as z_click,
+        (visit-min_visit)/(max_visit-min_visit) as z_visit,
+        (residence-min_residence)/(max_residence-min_residence) as z_residence
+    from 
+    (-- 각 인자들의 최댓값과 최솟값을 컬럼으로 표시
+        select * from before_normalize 
+        cross join 
+        (select
+            max(page_view) as max_page_view,
+            min(page_view) as min_page_view,
+            max(scroll) as max_scroll,
+            min(scroll) as min_scroll,
+            max(click) as max_click,
+            min(click) as min_click,
+            max(visit) as max_visit,
+            min(visit) as min_visit,
+            max(residence) as max_residence,
+            min(residence) as min_residence,
+        from before_normalize)
+    )
 )
 
-select 
-    a.user_pseudo_id,
-    a.match_user_id,
-    a.page_view,
-    a.scroll,
-    a.click,
-    a.visit,
-    a.residence,
-    b.traffic_site,
-    b.traffic_keyword
-from seg_inflow a left join inflow_ch b
-    on a.user_pseudo_id = b.user_pseudo_id
+select * from after_normalize
