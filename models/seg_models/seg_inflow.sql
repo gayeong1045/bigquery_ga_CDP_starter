@@ -107,11 +107,11 @@ seg_inflow as (
     select 
         a.user_pseudo_id,
         a.match_user_id,
-        a.page_view,
-        a.scroll,
-        a.click,
-        b.visit,
-        c.residence,
+        if(a.page_view is null, 0, a.page_view) as page_view,
+        if(a.scroll is null, 0, a.scroll) as scroll,
+        if(a.click is null, 0, a.click) as click,
+        if(b.visit is null, 0, b.visit) as visit,
+        if(c.residence is null, 0, c.residence) as residence,
         a.is_employee
     from trans_event a 
             left join visit_count b on a.user_pseudo_id = b.user_pseudo_id 
@@ -157,7 +157,8 @@ after_normalize as (
         (scroll-min_scroll)/(max_scroll-min_scroll) as z_scroll,
         (click-min_click)/(max_click-min_click) as z_click,
         (visit-min_visit)/(max_visit-min_visit) as z_visit,
-        (residence-min_residence)/(max_residence-min_residence) as z_residence
+        (residence-min_residence)/(max_residence-min_residence) as z_residence,
+        is_employee
     from 
     (-- 각 인자들의 최댓값과 최솟값을 컬럼으로 표시
         select * from before_normalize 
