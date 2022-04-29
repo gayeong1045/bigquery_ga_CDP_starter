@@ -158,6 +158,8 @@ after_normalize as (
         (click-min_click)/(max_click-min_click) as z_click,
         (visit-min_visit)/(max_visit-min_visit) as z_visit,
         (residence-min_residence)/(max_residence-min_residence) as z_residence,
+        traffic_site,
+        traffic_keyword,
         is_employee
     from 
     (-- 각 인자들의 최댓값과 최솟값을 컬럼으로 표시
