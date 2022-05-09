@@ -143,7 +143,7 @@ before_normalize as (
     from seg_inflow a left join inflow_ch b
         on a.user_pseudo_id = b.user_pseudo_id
 ),
-
+-- 간편분석 클릭 수 삭제
 after_normalize as (
     select
         user_pseudo_id,
@@ -155,7 +155,6 @@ after_normalize as (
         residence,
         (page_view-min_page_view)/(max_page_view-min_page_view) as z_page_view,
         (scroll-min_scroll)/(max_scroll-min_scroll) as z_scroll,
-        (click-min_click)/(max_click-min_click) as z_click,
         (visit-min_visit)/(max_visit-min_visit) as z_visit,
         (residence-min_residence)/(max_residence-min_residence) as z_residence,
         traffic_site,
@@ -178,6 +177,33 @@ after_normalize as (
             min(residence) as min_residence,
         from before_normalize)
     )
+),
+-- seg 조건 : 1사분위수 미만="하"/1사분위수 이상&3사분위수 미만="중"/3사분위수 이상="상"
+final as (
+    select 
+        *,
+        case 
+            when score < q1 then "하"
+            when score >= q1 and score < q3 then "중"
+            else "상" 
+        end as seg
+    from 
+        (select 
+            *,
+            PERCENTILE_DISC(score, 0) OVER() AS min,
+            PERCENTILE_DISC(score, 0.25) OVER() AS q1,
+            PERCENTILE_DISC(score, 0.5) OVER() AS q2,
+            PERCENTILE_DISC(score, 0.75) OVER() AS q3,
+            PERCENTILE_DISC(score, 1) OVER() AS max
+        from 
+            (select 
+                *,
+                z_page_view + z_scroll + z_visit + z_residence as score
+            from after_normalize
+            ))
 )
 
-select * from after_normalize
+select 
+    *
+from final
+
