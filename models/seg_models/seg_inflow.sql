@@ -20,7 +20,6 @@ with event_info as (
             a.event_name,
             cast(a.event_time as datetime) as event_time,
             a.ga_session_id,
-            a.is_employee,
             cast(b.accounts_user_created_at as datetime) as login_time,
         from {{ ref('view_trafficanalysis') }} a left join {{ ref('stg_maderi_accounts') }} b
             on a.match_user_id = b.user_id)
@@ -42,7 +41,6 @@ count_event as (
             max(last_time) as last_time,
             min(first_time) as first_time,
             date_diff(max(last_time),min(first_time),day) as visit_period,
-            max(is_employee) as is_employee
         from event_info
         group by user_pseudo_id, match_user_id, event_name)
     where event_name = 'page_view' or event_name = 'scroll' or event_name = 'test_btn_click_search'
@@ -58,7 +56,6 @@ trans_event as (
         max(if(event_name = 'page_view', daily_avg_cnt, null)) as page_view,
         max(if(event_name = 'scroll', daily_avg_cnt, null)) as scroll,
         max(if(event_name = 'test_btn_click_search', daily_avg_cnt, null)) as click,
-        max(is_employee) as is_employee
     from count_event
     group by user_pseudo_id, match_user_id
     order by user_pseudo_id
@@ -112,7 +109,6 @@ seg_inflow as (
         if(a.click is null, 0, a.click) as click,
         if(b.visit is null, 0, b.visit) as visit,
         if(c.residence is null, 0, c.residence) as residence,
-        a.is_employee
     from trans_event a 
             left join visit_count b on a.user_pseudo_id = b.user_pseudo_id 
             left join res_sum c on a.user_pseudo_id = c.user_pseudo_id 
@@ -138,8 +134,7 @@ before_normalize as (
         a.visit,
         a.residence,
         b.traffic_site,
-        b.traffic_keyword,
-        a.is_employee
+        b.traffic_keyword
     from seg_inflow a left join inflow_ch b
         on a.user_pseudo_id = b.user_pseudo_id
 ),
@@ -159,7 +154,6 @@ after_normalize as (
         (residence-min_residence)/(max_residence-min_residence) as z_residence,
         traffic_site,
         traffic_keyword,
-        is_employee
     from 
     (-- 각 인자들의 최댓값과 최솟값을 컬럼으로 표시
         select * from before_normalize 
@@ -201,9 +195,34 @@ final as (
                 z_page_view + z_scroll + z_visit + z_residence as score
             from after_normalize
             ))
+),
+
+tagging_employee as (
+    select 
+        *,
+        case
+            when match_user_id in (select user_id from {{ref('inter_accounts_employeeinfo')}}) then 'employee'
+            else 'customer'
+        end as is_employee
+    from final
 )
 
 select 
-    *
-from final
+    a.user_pseudo_id,
+    a.match_user_id,
+    a.z_page_view,
+    a.z_scroll,
+    a.z_visit,
+    a.z_residence,
+    a.traffic_site as traffic_source_raw,
+    a.traffic_keyword as traffic_keyword_raw,
+    b.traffic_source,
+    c.traffic_keyword,
+    a.score,
+    a.seg
+from tagging_employee a 
+    left join `maderi-cdp.dbt_ga.grouping_traffic_source` b
+        on a.traffic_site = b.traffic_source_raw
+    left join `maderi-cdp.dbt_ga.grouping_traffic_keyword` c
+        on a.traffic_keyword = c.traffic_keyword_raw
 

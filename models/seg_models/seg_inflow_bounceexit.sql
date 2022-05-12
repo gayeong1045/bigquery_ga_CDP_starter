@@ -3,15 +3,39 @@
         materialized='table'
     )
 }}
--- ga 데이터 중 식별화정보, 시간, 이벤트 정보, 세션, 페이지 위치정보만 가지고 온다
-with flat_events as (
+
+-- ga 이벤트 정보에 회원가입 일자를 붙여 회원가입 이전의 행동 데이터만 추출 
+with event_info as (
+    select 
+        *,
+        max(event_time) over(partition by user_pseudo_id) as last_time,
+        min(event_time) over(partition by user_pseudo_id) as first_time   
+    from 
+        (select 
+            a.event_id,
+            a.user_pseudo_id,
+            a.match_user_id,
+            a.event_name,
+            cast(a.event_time as datetime) as event_time,
+            a.ga_session_id,
+            a.page_location,
+            a.is_employee,
+            cast(b.accounts_user_created_at as datetime) as login_time,
+        from {{ ref('view_trafficanalysis') }} a left join {{ ref('stg_maderi_accounts') }} b
+            on a.match_user_id = b.user_id)
+    where login_time > event_time or login_time is null
+    order by user_pseudo_id
+),
+
+-- 유입단계의 ga 데이터 중 식별화정보, 시간, 이벤트 정보, 세션, 페이지 위치정보를 가지고 온다
+flat_events as (
     select 
         user_pseudo_id,
         cast(event_time as datetime) as event_time,
         event_name,
         ga_session_id,
         page_location
-    from {{ref('view_trafficanalysis')}}
+    from event_info
     order by user_pseudo_id, event_time
 ),
 -- 사용자마다 세션별 페이지별 이벤트 발생 개수 count
@@ -48,7 +72,7 @@ bounce_page as(
         (select
             user_pseudo_id,
             ga_session_id,
-            count(ga_session_id) as session_cnt,
+            count(page_location) as session_cnt,
             max(page_location) as bounce_page
         from event_cnt
         group by user_pseudo_id, ga_session_id
@@ -74,6 +98,24 @@ final as (
         concat(user_pseudo_id, '_', ga_session_id) as key, 
         * 
     from exit_bounce
+),
+
+user_id_vlookup as(
+    select 
+        *
+    from final a left join {{ref('inter_ga_useridmatching')}} b
+        on a.user_pseudo_id = b.match_user_pseudo_id
+),
+
+tagging_employee as (
+    select 
+        *,
+        case
+            when match_user_id in (select user_id from {{ref('inter_accounts_employeeinfo')}}) then 'employee'
+            else 'customer'
+        end as is_employee
+    from user_id_vlookup
 )
 
-select * from final
+select * from tagging_employee a left join `maderi-cdp.dbt_ga.grouping_page_location` b
+    on a.exit_page = b.page_location_raw

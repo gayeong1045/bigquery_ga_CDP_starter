@@ -74,7 +74,7 @@ tagging_employee as (
     select 
         *,
         case
-            when match_user_id in (select user_id from {{ref('cal_accounts_loginsegment')}}) then 'employee'
+            when match_user_id in (select user_id from {{ref('inter_accounts_employeeinfo')}}) then 'employee'
             else 'customer'
         end as is_employee
     from user_id_vlookup 
