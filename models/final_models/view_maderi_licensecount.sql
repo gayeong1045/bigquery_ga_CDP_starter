@@ -2,10 +2,15 @@
 
 {{
     config(
-        materialized='table'
+        materialized='incremental'
     )
 }}
 
 select
     *
-from `maderi-cdp.dbt_ga.temp`
+from {{ref('cal_accounts_activeuser')}}
+{% if is_incremental() %}
+
+where today = (select max(cast(synced_time as date)) from {{ref('stg_maderi_accounts')}})
+
+{% endif %}
