@@ -66,6 +66,7 @@ select
     a.user_id,
     a.license,
     a.is_active,
+    b.accounts_user_email,
     b.accounts_profile_marketing_info as marketing_info,
     b.accounts_user_created_at as join_date,
     b.accounts_user_first_name as first_name,
