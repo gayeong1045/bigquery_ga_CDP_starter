@@ -49,7 +49,17 @@ select
 from session_count
 group by user_pseudo_id,user_id, ga_session_id, page_location
 order by user_pseudo_id, start_time
+),
+
+match_user as (
+    select * from group_page a left join {{ref('inter_ga_useridmatching')}} b
+    on a.user_pseudo_id = b.match_user_pseudo_id
 )
 
-select * from group_page a left join {{ref('inter_ga_useridmatching')}} b
-    on a.user_pseudo_id = b.match_user_pseudo_id
+select 
+    a.*,
+    b.accounts_user_email
+from match_user a left join {{ref('stg_maderi_accounts')}} b
+    on a.match_user_id = b.user_id
+
+
