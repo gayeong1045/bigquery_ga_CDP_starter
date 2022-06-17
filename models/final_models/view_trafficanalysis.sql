@@ -81,4 +81,8 @@ tagging_employee as (
 )
 
 
-select * from tagging_employee
+select 
+    a.*,
+    b.accounts_user_email
+from tagging_employee a left join {{ref('stg_maderi_accounts')}} b
+    on a.match_user_id = b.user_id
