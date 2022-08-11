@@ -213,3 +213,17 @@ sources:
     schema: google_sheets
     tables: 
       - name: t_payment_cp_manual   
+
+metrics:
+  - name: active_users
+    model: ref('view_maderi_licensecount')
+    description: "활성화된 계정의 수"
+
+    type: sum
+    sql: daily_user_count 
+
+    timestamp: today
+    time_grains: [day, week, month]
+
+    dimensions:
+      - status_license
