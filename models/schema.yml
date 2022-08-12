@@ -227,3 +227,16 @@ metrics:
 
     dimensions:
       - status_license
+
+  - name: average_amount
+    model: ref('view_maderi_accountpayment')
+    description: "매출 평균"
+
+    type: average
+    sql: t_payment_history_amount 
+
+    timestamp: t_payment_history_event_at
+    time_grains: [day, week, month]
+
+    dimensions:
+      - accounts_profile_license

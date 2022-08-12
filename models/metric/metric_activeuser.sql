@@ -1,6 +1,6 @@
 select * 
 from {{ metrics.metric(
-    metric_name='active_users',
+    metric_name='average_amount',
     grain='week',
     dimensions=[],
 ) }}
